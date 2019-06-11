@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<script type="text/javascript" src="js/lib/p5.min.js"></script>
+	<script type="text/javascript" src="js/lib/p5.dom.min.js"></script>
+	<script type="text/javascript" src="js/raycast.js"></script>
+	<script type="text/javascript" src="js/block.js"></script>
+	<script type="text/javascript" src="js/game.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<style>
+		.parent {
+			display: flex;
+			flex-direction: row;
+			margin-top: 20px;
+			margin-bottom: 20px;
+		}
+		.canvas {
+			text-align: center;
+		}
+		.history {
+			left: 5%;
+		}
+		.step {
+			left: 20%;
+			transform: translateX(-20%);
+		}
+		.level {
+			left: 27%;
+		}
+		.flex-container {
+			display: -webkit-box;
+			display: -webkit-flex;
+			display: flex;
+			-webkit-flex-flow: row wrap;
+			justify-content: space-between;
+			text-align: center;
+		}
+		.mui-content-padded {
+				padding: 10px;
+		}
+		.mui-content-padded a {
+			margin: 3px;
+			width: 50px;
+			height: 50px;
+			display: inline-block;
+			text-align: center;
+			background-color: #fff;
+			border: 1px solid #ddd;
+			border-radius: 25px;
+			background-clip: padding-box;
+		}
+		.mui-content-padded a .mui-icon {
+			margin-top: 12px;
+		}
+	</style>
+    <title></title>
+	<!-- 主界面菜单同时移动 -->
+		<!-- 侧滑导航根容器 -->
+		<div class="mui-off-canvas-wrap mui-draggable">
+			<!-- 主页面容器 -->
+			<div class="mui-inner-wrap">
+				<!-- 主页面内容容器 -->
+				<div class="mui-content mui-scroll-wrapper">
+					<div class="mui-scroll">
+						<!-- 主界面具体展示内容 -->
+						<div class="parent">
+							<button type="button" class="mui-btn mui-badge-warning history" id="history">历史记录</button>
+							<button type="button" class="mui-btn mui-btn-danger step">步数： <span id="step" class="mui-badge mui-badge-danger">0</span>  步</button>
+							<button id="openPopover" class="mui-btn mui-badge-warning level">选择  关卡</button>
+						</div>
+						<div id="canvas" class="canvas"></div>
+						<div>
+							<div class="mui-content-padded">
+								<div class="flex-container">
+									<a id="icon-refresh"><span type="button" class="mui-icon mui-icon-refresh" onclick="restart()"></span></a>
+									<a id="icon-close"><span class="mui-icon mui-icon-close" onclick="quit()"></span></a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mui-off-canvas-backdrop"></div>
+			</div>
+		</div>
+	
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf-8">
+      	mui.init();
+		var level = 1;
+		document.getElementById("icon-refresh").addEventListener('tap',function () {
+			restart();
+		});
+		document.getElementById("icon-close").addEventListener('tap',function () {
+			quit();
+		});
+		document.getElementById("history").addEventListener('tap',function () {
+			var btnArray = [{title:"清空记录"}];
+			var itemLength = getLengthFun();
+				for ( var i=0; i < itemLength; i++ ) {
+					var key = plus.storage.key(i);
+					var value = plus.storage.getItem(key);
+					btnArray.push({title:(key + '：' + value)})
+				};
+			plus.nativeUI.actionSheet( {
+				title:"历史记录",
+				cancel:"取消",
+				buttons:btnArray
+			}, function(e){
+				var index = e.index;
+				switch (index){
+					case 1:
+						plus.storage.clear();
+						break;
+					default:
+						;
+				}
+			} );
+		});
+		function history() {
+			// console.log(getLengthFun())
+			// plus.storage.setItem( "key", "valuesss");
+			// console.log(getLengthFun())
+			var key = plus.storage.key(0);
+			var value = plus.storage.getItem(key);
+			// console.log(value)
+		}
+		function getLengthFun(){
+			return plus.storage.getLength();
+		}
+		function changeLevel(level) {
+			game.blocks = []
+			game.step = 0
+			document.getElementById("step").innerHTML=game.step
+			game.init(level)
+		}
+		function quit() {
+			var btn = ["确定","取消"];
+			mui.confirm('确认退出游戏？','提示',btn,function(e){
+				if(e.index==0){
+					plus.runtime.quit();
+				}
+			});
+		}
+		document.getElementById("openPopover").addEventListener('tap',function () {
+			var btnArray = [{title:"Level1"},{title:"Level2"},{title:"Level3"},{title:"Level4"},{title:"Level5"}];
+			plus.nativeUI.actionSheet( {
+				title:"选择关卡",
+				cancel:"取消",
+				buttons:btnArray
+			}, function(e){
+				var index = e.index;
+				switch (index){
+					case 0:
+						break;
+					case 1:
+						level = 1;
+						changeLevel(1);
+						break;
+					case 2:
+						changeLevel(2);
+						level = 2;
+						break;
+					case 3:
+						changeLevel(3);
+						level = 3;
+						break;
+					case 4:
+						changeLevel(4);
+						level = 4;
+						break;
+					case 5:
+						changeLevel(5);
+						level = 5;
+						break;
+				}
+			} );
+		});
+		function restart() {
+			game.blocks = []
+			game.step = 0
+			document.getElementById("step").innerHTML=game.step
+			game.init(level)
+			console.log(getLengthFun());
+		}
+    </script>
+</head>
+<body>
+	
+</body>
+</html>
